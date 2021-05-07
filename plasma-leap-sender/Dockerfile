@@ -5,13 +5,13 @@ RUN apt update &&\
     gnupg2 software-properties-common wget gcc g++ git git-lfs python3-pip
 
 # install cbf-sdp-emulator
-ARG PYPI_REPOSITORY_URL=https://nexus.engageska-portugal.pt/repository/pypi
-RUN apt install -y python3-casacore
-RUN pip3 install pyarrow==3.0.0
-RUN git clone --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
-    cd cbf-sdp-emulator &&\
-    pip3 install --extra-index-url=$PYPI_REPOSITORY_URL/simple -e . &&\
-    cd data/; tar xf sim-vis.ms.tar.gz; cd ..
+# ARG PYPI_REPOSITORY_URL=https://nexus.engageska-portugal.pt/repository/pypi
+# RUN apt install -y python3-casacore
+# RUN pip3 install pyarrow==3.0.0
+# RUN git clone --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
+#     cd cbf-sdp-emulator &&\
+#     pip3 install --extra-index-url=$PYPI_REPOSITORY_URL/simple -e . &&\
+#     cd data/; tar xf sim-vis.ms.tar.gz; cd ..
 
 #CMD ["/run.sh"]
 

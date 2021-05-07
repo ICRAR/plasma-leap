@@ -12,15 +12,15 @@
 # Pipeline:
 # CBF-SDP-SENDER
 CBF_SDP_SENDER_COMMAND=emu-send
-CBF_SDP_SENDER_ARGS="-c ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.ms"
+CBF_SDP_SENDER_ARGS="-c ./askap-SS-1100.conf ./askap-SS-1100.ms"
 
 # CBF-SDP-RECEIVER
 CBF_SDP_RECEIVER_COMMAND=emu-recv
-CBF_SDP_RECEIVER_ARGS="-c ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf"
+CBF_SDP_RECEIVER_ARGS="-c ./askap-SS-1100.conf"
 
 # PLASMA-MSWRITER
 PLASMA_MSWRITER_COMMAND=plasma-mswriter
-PLASMA_MSWRITER_ARGS="./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM_plasma.ms --max_payloads 1 --use_plasma_ms true"
+PLASMA_MSWRITER_ARGS="./askap-SS-1100.ms --max_payloads 1 --max_payload_misses 60"
 
 # PLASMA-STORE
 PLASMA_STORE_COMMAND=plasma_store
@@ -28,9 +28,9 @@ PLASMA_STORE_ARGS="-s /tmp/plasma -m 2000000000"
 
 # LEAP-ACCELERATE
 LEAP_ACCELERATE_COMMAND=LeapAccelerateCLI
-LEAP_ACCELERATE_ARGS="-c leap-ska.json"
+LEAP_ACCELERATE_ARGS="-f askap-SS-1100.ms -d [[0,0],[1,1]]"
 
-session=ska
+session=askap
 
 finally() {
     echo
@@ -64,17 +64,17 @@ cbf_sender() {
 run_tmux() {
     trap finally INT
     tmux new -s $session -d
-    tmux send-keys -t $session "bash ska.sh plasma_store_function" Enter
+    tmux send-keys -t $session "bash askap.sh plasma_store_function" Enter
     tmux split-window -h
     sleep 2
-    tmux send-keys -t $session "bash ska.sh plasma_consumers" Enter
+    tmux send-keys -t $session "bash askap.sh plasma_consumers" Enter
     tmux select-pane -t 0
     tmux split-window -v
     sleep 1
-    tmux send-keys -t $session "bash ska.sh cbf_receiver" Enter
+    tmux send-keys -t $session "bash askap.sh cbf_receiver" Enter
     tmux split-window -v
     sleep 1
-    tmux send-keys -t $session "bash ska.sh cbf_sender" Enter
+    tmux send-keys -t $session "bash askap.sh cbf_sender" Enter
     tmux attach-session -t $session
 }
 

@@ -18,4 +18,4 @@ download_and_extract() {
     fi
 }
 
-download_and_extract "https://cloudstor.aarnet.edu.au/plus/s/KO5jutEkg3UffmU/download" askap/askap-SS-1100.tar.gz
+download_and_extract "https://cloudstor.aarnet.edu.au/plus/s/KO5jutEkg3UffmU/download" askap-SS-1100.tar.gz

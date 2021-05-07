@@ -13,9 +13,23 @@ distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
    && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
    && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 sudo apt update
-apt install -y docker-ce docker-ci-cli nvidia-container-toolkit
+apt install -y docker-ce docker-ci-cli nvidia-container-toolkit nvidia-container-runtime
 
 # Build Image
+
+## update /etc/docker/daemon.json for building images with cuda runtime support enabled
+```
+{
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+         } 
+    },
+    "default-runtime": "nvidia"
+}
+```
+
 docker build -t plasma-leap-receiver .
 
 # Run Image
