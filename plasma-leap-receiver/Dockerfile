@@ -58,30 +58,33 @@ RUN mkdir -p /code && cd /code &&\
     cd data/; tar xf sim-vis.ms.tar.gz; cd ..
 
 # install cuda
-# RUN mkdir -p /code && cd /code &&\
-#     wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin &&\
-#     mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 &&\
-#     apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub &&\
-#     add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" &&\
-#     apt update
+RUN mkdir -p /code && cd /code &&\
+    wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-ubuntu2004.pin &&\
+    mv cuda-ubuntu2004.pin /etc/apt/preferences.d/cuda-repository-pin-600 &&\
+    apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/7fa2af80.pub &&\
+    add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/ /" &&\
+    apt update
 
-# RUN DEBIAN_FRONTEND=noninteractive apt -y --no-install-recommends install \
-#     cuda-minimal-build-11-2 cuda-libraries-11-2 cuda-libraries-dev-11-2
+RUN DEBIAN_FRONTEND=noninteractive apt -y --no-install-recommends install \
+    cuda-minimal-build-11-2 cuda-libraries-11-2 cuda-libraries-dev-11-2 &&\
+    ln -s /usr/local/cuda-11.2 /usr/local/cuda &&\
+    ln -s /usr/local/cuda/targets/x86_64-linux/lib /usr/local/cuda/lib &&\
+    ln -s /usr/local/cuda/targets/x86_64-linux/include /usr/local/cuda/include
 
-# # build and install leap-accelerate
-# RUN mkdir -p /code && cd /code &&\
-#     git clone -b yan-588/test-calibrations --recursive https://gitlab.com/ska-telescope/icrar-leap-accelerate.git &&\
-#     cd icrar-leap-accelerate &&\
-#     export CUDA_HOME=/usr/local/cuda-11.2 &&\
-#     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64:${CUDA_HOME}/extras/CUPTI/lib64 &&\
-#     export PATH=$PATH:$CUDA_HOME/bin &&\
-#     mkdir -p build/linux/Release && cd build/linux/Release &&\
-#     cmake ../../.. -DCMAKE_BUILD_TYPE=Release -DCUDA_ENABLED=ON -DBUILD_TESTING=OFF &&\
-#     make install
+# build and install leap-accelerate
+RUN mkdir -p /code && cd /code &&\
+    git clone -b yan-588/test-calibrations --recursive https://gitlab.com/ska-telescope/icrar-leap-accelerate.git &&\
+    cd icrar-leap-accelerate &&\
+    export CUDA_HOME=/usr/local/cuda-11.2 &&\
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64:${CUDA_HOME}/extras/CUPTI/lib64 &&\
+    export PATH=$PATH:$CUDA_HOME/bin &&\
+    mkdir -p build/linux/Release && cd build/linux/Release &&\
+    cmake ../../.. -DCMAKE_BUILD_TYPE=Release -DCUDA_ENABLED=ON -DBUILD_TESTING=OFF &&\
+    make install
 
-# # # setup pipeline files
-# RUN mkdir -p /code && cd /code &&\
-#     git clone --recursive https://gitlab.com/calgray/plasma-leap.git
+# # setup pipeline files
+RUN mkdir -p /code && cd /code &&\
+    git clone --recursive https://gitlab.com/calgray/plasma-leap.git
 
 # Second stage to cleanup the mess
 # FROM ubuntu:20.04

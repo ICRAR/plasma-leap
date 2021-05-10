@@ -2,6 +2,7 @@
     "filePath": "./functest.ms",
     "minimumBaselineThreshold": 0.0,
     "useFileSystemCache": false,
+    "autoCorrelations": true,
     "computeImplementation": "cuda",
     "directions": [
         [-0.4606549305661674,-0.29719233792392513],

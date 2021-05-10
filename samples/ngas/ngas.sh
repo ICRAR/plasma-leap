@@ -41,7 +41,6 @@ plasma_store_function() {
 }
 
 plasma_consumers() {
-    #while true; do
     echo "starting plasma mswriter"
     eval $PLASMA_MSWRITER_COMMAND "$PLASMA_MSWRITER_ARGS" | sed -e 's/^/[PLASMA-MSWRITER] /'
     PLASMA_MSWRITER_PID=$!
