@@ -1,6 +1,6 @@
 # This is Dockerfile installs everything from scratch into a Ubuntu 20.04 based container
 FROM ubuntu:20.04
-RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends tzdata \
+RUN apt update && DEBIAN_FRONTEND=noninteractive apt install -y --no-install-recommends tzdata \
     gnupg2 software-properties-common wget git git-lfs gcc g++ make tmux python3-pip cmake libboost1.71-all-dev
 
 # install casacore
@@ -10,6 +10,12 @@ RUN mkdir -p /code && cd /code &&\
     apt-add-repository restricted &&\
     apt update &&\
     apt install -y casacore-dev
+
+# install python3-casacore
+# NOTE: pip3 python-casacore and apt python3-casacore bundles it's own libcasa_tables-xyz.so different to kernsuite. Installing with
+# the no-binary option will link to kernsuite shared libraries.
+RUN apt install -y python3-dev wcslib-dev libcfitsio-dev &&\
+    pip3 install --no-binary python-casacore python-casacore
 
 # install arrow-plasma
 # RUN apt update && apt install -y wget &&\
@@ -44,7 +50,7 @@ RUN mkdir -p /code && cd /code &&\
 # install pyarrow
 RUN pip3 install pyarrow==3.0.0
 
-# build and install cbf-sdp-emulator
+# build and install cbf-sdp-emulator TODO: use master branch
 RUN mkdir -p /code && cd /code &&\
     git clone -b yan-657/write_plasma_ms --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
     cd cbf-sdp-emulator &&\
