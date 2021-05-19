@@ -3,11 +3,6 @@ samples/askap
 !samples/askap/askap.sh
 !samples/askap/askap-SS-1100.conf
 !samples/askap/leap-askap.json
-samples/ska
-!samples/ska/install.sh
-!samples/ska/ska.sh
-!samples/ska/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf
-!samples/ska/leap-ska.json
 samples/ngas
 !samples/ngas/install.sh
 !samples/ngas/ngas.sh
