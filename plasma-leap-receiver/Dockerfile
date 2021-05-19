@@ -52,7 +52,7 @@ RUN pip3 install pyarrow==3.0.0
 
 # build and install cbf-sdp-emulator TODO: use master branch
 RUN mkdir -p /code && cd /code &&\
-    git clone -b yan-657/write_plasma_ms --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
+    git clone --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
     cd cbf-sdp-emulator &&\
     pip3 install --extra-index-url=https://nexus.engageska-portugal.pt/repository/pypi/simple -e .[plasma] &&\
     cd data/; tar xf sim-vis.ms.tar.gz; cd ..
@@ -82,9 +82,15 @@ RUN mkdir -p /code && cd /code &&\
     cmake ../../.. -DCMAKE_BUILD_TYPE=Release -DCUDA_ENABLED=ON -DBUILD_TESTING=OFF &&\
     make install
 
-# # setup pipeline files
+# setup pipeline files
 RUN mkdir -p /code && cd /code &&\
     git clone --recursive https://gitlab.com/calgray/plasma-leap.git
+
+# install gsutil
+RUN apt install -y apt-transport-https ca-certificates gnupg2 curl &&\
+    echo "deb [signed-by=/usr/share/keyrings/cloud.google.gpg] https://packages.cloud.google.com/apt cloud-sdk main" | tee -a /etc/apt/sources.list.d/google-cloud-sdk.list &&\
+    curl https://packages.cloud.google.com/apt/doc/apt-key.gpg | apt-key --keyring /usr/share/keyrings/cloud.google.gpg add - &&\
+    apt update && apt install -y google-cloud-sdk
 
 # Second stage to cleanup the mess
 # FROM ubuntu:20.04
