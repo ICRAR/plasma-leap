@@ -20,7 +20,7 @@ CBF_SDP_RECEIVER_ARGS="-c ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf"
 
 # PLASMA-MSWRITER
 PLASMA_MSWRITER_COMMAND=plasma-mswriter
-PLASMA_MSWRITER_ARGS="./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM_plasma.ms --max_payloads 1 --use_plasma_ms true"
+PLASMA_MSWRITER_ARGS="./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM_plasma.ms --max_payloads 1 --use_plasma_ms true -c 'LeapAccelerateCLI -c leap-ska.json -f %s'"
 
 # PLASMA-STORE
 PLASMA_STORE_COMMAND=plasma_store
@@ -47,7 +47,7 @@ plasma_store_function() {
 plasma_consumers() {
     #while true; do
     echo "starting plasma mswriter"
-    $PLASMA_MSWRITER_COMMAND $PLASMA_MSWRITER_ARGS | sed -e 's/^/[PLASMA-MSWRITER] /'
+    eval $PLASMA_MSWRITER_COMMAND "$PLASMA_MSWRITER_ARGS" | sed -e 's/^/[PLASMA-MSWRITER] /'
     PLASMA_MSWRITER_PID=$!
 }
 
