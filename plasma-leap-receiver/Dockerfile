@@ -73,7 +73,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt -y --no-install-recommends install \
 
 # build and install leap-accelerate
 RUN mkdir -p /code && cd /code &&\
-    git clone -b --recursive https://gitlab.com/ska-telescope/icrar-leap-accelerate.git &&\
+    git clone --recursive https://gitlab.com/ska-telescope/icrar-leap-accelerate.git &&\
     cd icrar-leap-accelerate &&\
     export CUDA_HOME=/usr/local/cuda-11.2 &&\
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:${CUDA_HOME}/lib64:${CUDA_HOME}/extras/CUPTI/lib64 &&\
