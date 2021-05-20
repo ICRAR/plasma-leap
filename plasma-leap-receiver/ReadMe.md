@@ -54,6 +54,6 @@ docker build -t plasma-leap-receiver .
 ## Run and Test Image
 
 ```
-docker run -it -p 3000:3000 --gpus=all plasma-leap-receiver
+docker run -it -p 3000:3000 --gpus=all --shm-size=3000000000 plasma-leap-receiver
 nvidia-smi
 ```
