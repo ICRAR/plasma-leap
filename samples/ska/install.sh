@@ -18,4 +18,5 @@ download_and_extract() {
     fi
 }
 
+mkdir -p SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS
 download_and_extract "gs://ska1-simulation-data/ska1-low/direction_dependent_sims_SP-1056/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS/*" SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS
