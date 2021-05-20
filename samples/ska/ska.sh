@@ -12,7 +12,7 @@
 # Pipeline:
 # CBF-SDP-SENDER
 CBF_SDP_SENDER_COMMAND=emu-send
-CBF_SDP_SENDER_ARGS="-c ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.ms"
+CBF_SDP_SENDER_ARGS="-c ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS"
 
 # CBF-SDP-RECEIVER
 CBF_SDP_RECEIVER_COMMAND=emu-recv

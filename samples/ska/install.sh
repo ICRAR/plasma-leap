@@ -11,12 +11,13 @@ download_and_extract() {
     output="${2%.*.*}.ms"
     if [ ! -d $output ]; then
         echo "Downloading and extracting $2"
-        gsutil copy "$1" -O "$2" || fail "failed to download $2 from $1"
+        mkdir -p "$2"
+        gsutil -m cp -r "$1" -O "$2" || fail "failed to download $2 from $1"
         tar -C "$directory" -xf "$2" || (fail "failed to extract $output" && rm -rf $output)
     else
         echo "$output already exists"
     fi
 }
 
-mkdir -p SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS
+
 download_and_extract "gs://ska1-simulation-data/ska1-low/direction_dependent_sims_SP-1056/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS/*" SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS
