@@ -1,10 +1,10 @@
  
 {
     "filePath": "./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM_plasma.ms",
-    "autoCorrelations": false,
+    "autoCorrelations": true,
     "referenceAntenna": 0,
-    "computeImplementation": "cpu",
-    "solutionInterval": [0,-1,-1],
+    "computeImplementation": "cuda",
+    "solutionInterval": [0,1,1],
     "directions": [
         [-0.4606549305661674,-0.29719233792392513]
     ],
