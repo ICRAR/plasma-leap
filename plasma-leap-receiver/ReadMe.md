@@ -1,23 +1,29 @@
-# Summary
+# Plasma-Leap Pipeline Docker Image
 
-plasma-leap-receiver is a container for calibrating on recieved observations by storing visibilities in an plasma in-memory data store then reading via leap-accelerate.
+## Summary
+
+plasma-leap-receiver is a container including the entire pipeline for leap calibrating using observations recieved observations by storing visibilities in an plasma in-memory data store then reading via leap-accelerate.
  
+## Install NVIDIA-Docker
 
-# Setup
+(Make sure nvidia drivers are installed and enabled on the docker host system)
 
-## Ubuntu/Debian (Make sure nvidia drivers are enabled on the physical system)
+### Ubuntu/Debian
+
+#### Add dependencies
 
 ```
-# Add dependencies
 distribution=$(. /etc/os-release;echo $ID$VERSION_ID) \
    && curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add - \
    && curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list
 sudo apt update
 apt install -y docker-ce docker-ci-cli nvidia-container-toolkit nvidia-container-runtime
+```
 
-# Build Image
+## Update Docker default runtime
 
-## update /etc/docker/daemon.json for building images with cuda runtime support enabled
+update /etc/docker/daemon.json for building images with cuda runtime support enabled
+
 ```
 {
     "runtimes": {
@@ -30,8 +36,17 @@ apt install -y docker-ce docker-ci-cli nvidia-container-toolkit nvidia-container
 }
 ```
 
-docker build -t plasma-leap-receiver .
+## Build Image
 
-# Run Image
+Note: dockerfile building does not currently support executing cuda code
+
+```
+docker build -t plasma-leap-receiver .
+```
+
+## Run and Test Image
+
+```
 docker run -it -p 3000:3000 --gpus=all plasma-leap-receiver
+nvidia-smi
 ```
