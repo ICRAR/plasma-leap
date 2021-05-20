@@ -22,7 +22,7 @@ apt install -y docker-ce docker-ci-cli nvidia-container-toolkit nvidia-container
 
 ## Update Docker default runtime
 
-update /etc/docker/daemon.json for building images with cuda runtime support enabled
+update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
 
 ```
 {
