@@ -2,7 +2,7 @@
 
 ## Summary
 
-plasma-leap-receiver is a container including the entire pipeline for leap calibrating using observations recieved observations by storing visibilities in an plasma in-memory data store then reading via leap-accelerate.
+plasma-leap-receiver is a container including the entire pipeline for leap calibration on recieved spead2 observations by storing visibilities in an plasma in-memory data store.
 
 ### Pipeline Diagram
 
