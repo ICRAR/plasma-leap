@@ -54,6 +54,9 @@ docker build -t plasma-leap-receiver .
 ## Run and Test Image
 
 ```
-docker run -it -p 3000:3000 --gpus=all --shm-size=3000000000 plasma-leap-receiver
+docker run -it -p 3000:3000 --gpus=all --shm-size=3000000000 --ipc=shareable plasma-leap-receiver
 nvidia-smi
+cd /code/plasma-leap/samples/ska
+bash install.sh
+bash ska.sh run_tmux
 ```
