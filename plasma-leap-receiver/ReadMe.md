@@ -2,7 +2,7 @@
 
 ## Summary
 
-plasma-leap-receiver is a container including the entire pipeline for leap calibration on recieved spead2 observations by storing visibilities in an plasma in-memory data store.
+plasma-leap-receiver is a docker image including an entire pipeline for performing gpu-accelerated leap calibration on network recieved spead2 observations using a plasma in-memory data store. Included is a samples folder containing pipeline configurations for different observation sources.
 
 ### Pipeline Diagram
 
@@ -60,6 +60,11 @@ docker build -t plasma-leap-receiver .
 ```
 docker run -it -p 3000:3000 --gpus=all --shm-size=3000000000 --ipc=shareable plasma-leap-receiver
 nvidia-smi
+```
+
+## Run SKA Sample Pipeline
+
+```
 cd /code/plasma-leap/samples/ska
 bash install.sh
 bash ska.sh run_tmux
