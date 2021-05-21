@@ -8,7 +8,7 @@ plasma-leap-receiver is a docker image including an entire pipeline for performi
 
 ![pipeline-diagram](/images/mem-workflow.jpg "Plasma-Leap Pipeline")
 
-### Run docker image
+### Run docker image on AWS Instance
 
 ```
 cd ~/leap-pipeline/plasma-leap/samples/ska
@@ -17,10 +17,9 @@ docker run -it --rm --gpus=all --shm-size=3000000000 --ipc=shareable \
 plasma-leap-receiver
 ```
 
-### Test pipeline in docker container
+### Test pipeline in docker container on AWS Instance
 
 ```
-nvidia-smi
 cd /code/plasma-leap/samples/ska
 bash ska.sh run_tmux
 ```
@@ -28,6 +27,8 @@ bash ska.sh run_tmux
 Upon running it should be observed that LeapAccelerateCLI is called in the right tmux window and outputs a calibration array of numbers every 8 seconds or so.
 
 ## Full Setup
+
+The following instructions contain information for deploying the pipeline on a clean host system.
 
 (Make sure nvidia drivers are installed and enabled on the docker host system)
 
@@ -99,5 +100,3 @@ nvidia-smi
 cd /code/plasma-leap/samples/ska
 bash ska.sh run_tmux
 ```
-
-Upon running it should be observed that LeapAccelerateCLI is called in the right tmux window and outputs a calibration array of numbers every 8 seconds or so.
