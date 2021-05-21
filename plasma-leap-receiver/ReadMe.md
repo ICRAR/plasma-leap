@@ -60,7 +60,7 @@ docker build -t plasma-leap-receiver .
 ### Download sample data on host machine
 
 ```
-cd /code/plasma-leap/samples/ska
+cd ../samples/ska
 bash install.sh
 ```
 
