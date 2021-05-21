@@ -8,7 +8,7 @@ plasma-leap-receiver is a docker image including an entire pipeline for performi
 
 ![pipeline-diagram](/images/mem-workflow.jpg "Plasma-Leap Pipeline")
 
-## Install Nvidia-Docker
+## Host-Machine Setup
 
 (Make sure nvidia drivers are installed and enabled on the docker host system)
 
@@ -31,7 +31,7 @@ nvidia-container-runtime nvidia-docker2
 sudo systemctl restart docker
 ```
 
-## Update Docker default runtime
+#### Update Docker Default Runtime (Optional)
 
 update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
 
@@ -47,22 +47,22 @@ update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
 }
 ```
 
-## Build Image
+## Build Docker Image
 
-Note: dockerfile building does not currently support executing cuda code
+Note: dockerfile building does not currently support executing cuda binaries. Make sure to not install any cuda drivers during this step.
 
 ```
 docker build -t plasma-leap-receiver .
 ```
 
-## Run and Test Image
+## Run and Test Docker Image
 
 ```
 docker run -it -p 3000:3000 --gpus=all --shm-size=3000000000 --ipc=shareable plasma-leap-receiver
 nvidia-smi
 ```
 
-## Run SKA Sample Pipeline
+### Run SKA Sample Pipeline
 
 ```
 cd /code/plasma-leap/samples/ska
