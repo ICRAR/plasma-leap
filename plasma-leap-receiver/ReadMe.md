@@ -55,18 +55,28 @@ Note: dockerfile building does not currently support executing cuda binaries. Ma
 docker build -t plasma-leap-receiver .
 ```
 
-## Run and Test Docker Image
+## Run and Test Pipeline
+
+### Download sample data on host machine
 
 ```
-docker run -it -p 3000:3000 --gpus=all --shm-size=3000000000 --ipc=shareable plasma-leap-receiver
-nvidia-smi
-```
-
-### Run SKA Sample Pipeline
-
-```
-cd /code/plasma-leap/samples/ska
+cd ../samples/ska
 bash install.sh
+```
+
+### Run docker image
+
+```
+docker run -it --rm -p 3000:3000 --gpus=all --shm-size=3000000000 --ipc=shareable \
+--mount type=bind,src=$PWD/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS,dst=/code/plasma-leap/samples/ska/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS,readonly \
+plasma-leap-receiver
+```
+
+### Test pipeline in docker container
+
+```
+nvidia-smi
+cd /code/plasma-leap/samples/ska
 bash ska.sh run_tmux
 ```
 
