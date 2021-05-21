@@ -11,7 +11,7 @@ plasma-leap-receiver is a docker image including an entire pipeline for performi
 ### Run docker image
 
 ```
-cd leap-pipeline/plasma-leap/samples/ska
+cd ~/leap-pipeline/plasma-leap/samples/ska
 docker run -it --rm --gpus=all --shm-size=3000000000 --ipc=shareable \
 --mount type=bind,src=$PWD,dst=/code/plasma-leap/samples/ska \
 plasma-leap-receiver
