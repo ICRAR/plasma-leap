@@ -1,7 +1,11 @@
-# Build Sender
+# Plasma-Leap
 
-`cd plasma-leap-sender && docker build .`
+A spead2 to leap calibration pipeline demonstration using plasma memory-store.
 
-# Build Receiver
+### Pipeline Diagram
 
-`cd plasma-leap-reciever && docker build .`
+![pipeline-diagram](/images/mem-workflow.jpg "Plasma-Leap Pipeline")
+
+## Docker Deployment
+
+Refer to **plasma-leap-receiver** for a complete pipeline running on a single instance.

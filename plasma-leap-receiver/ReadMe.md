@@ -3,7 +3,11 @@
 ## Summary
 
 plasma-leap-receiver is a container including the entire pipeline for leap calibrating using observations recieved observations by storing visibilities in an plasma in-memory data store then reading via leap-accelerate.
- 
+
+### Pipeline Diagram
+
+![pipeline-diagram](/images/mem-workflow.jpg "Plasma-Leap Pipeline")
+
 ## Install Nvidia-Docker
 
 (Make sure nvidia drivers are installed and enabled on the docker host system)
@@ -60,3 +64,5 @@ cd /code/plasma-leap/samples/ska
 bash install.sh
 bash ska.sh run_tmux
 ```
+
+Upon running it should be observed that LeapAccelerateCLI is called in the right tmux window and outputs a calibration array of numbers every 8 seconds or so.
