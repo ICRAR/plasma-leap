@@ -1,6 +1,6 @@
 # Plasma-Leap
 
-A spead2 to leap calibration pipeline demonstration using plasma memory-store.
+A spead2 to leap calibration pipeline demonstration using SKA sdp-dal (Scientific-Data-Processing Data-Access-Library) 
 
 ### Pipeline Diagram
 
