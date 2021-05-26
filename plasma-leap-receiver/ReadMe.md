@@ -37,7 +37,7 @@ The following instructions contain information for deploying the pipeline on a c
 #### Install Docker
 
 ```
-sudo apt install -y docker-ce docker-ci-cli
+sudo apt install -y docker-ce docker-ce-cli
 ```
 
 #### Install Nvidia-Docker
