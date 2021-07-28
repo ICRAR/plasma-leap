@@ -67,6 +67,56 @@ update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
 }
 ```
 
+### Arch/Manjaro
+
+### Install Docker
+
+```
+pacman -S docker
+```
+
+#### Install Nvidia-Docker
+
+```
+pamac install libnvidia-container
+pamac install libnvidia-container
+pamac install libnvidia-container-tools
+pamac install nvidia-container-toolkit
+pamac install nvidia-container-runtime
+```
+
+#### Update Docker Default Runtime
+
+update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
+
+```
+{
+    "runtimes": {
+        "nvidia": {
+            "path": "/usr/bin/nvidia-container-runtime",
+            "runtimeArgs": []
+         } 
+    },
+    "default-runtime": "nvidia"
+}
+```
+
+#### Pass Device when running containers
+
+Use either:
+
+Priviliged Mode (unsecure)
+
+```
+docker --priviliged
+```
+
+Or pass device explicitly:
+
+```
+
+```
+
 ## Build Docker Image
 
 Note: dockerfile building does not currently support executing cuda binaries. Make sure to not install any cuda drivers during this step.
