@@ -101,21 +101,24 @@ update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
 }
 ```
 
-#### Pass Device when running containers
+#### Handle CGroup V2
 
-Use either:
+CGroup V2 is currently not supported with nvidia-container-toolkit
 
-Priviliged Mode (unsecure)
 
+Either:
+
+Disable CGroup
+```
+systemd.unified_cgroup_hierarchy=false
+```
+
+Use Priviliged Mode (unsecure)
 ```
 docker --priviliged
 ```
 
-Or pass device explicitly:
-
-```
-
-```
+See https://github.com/NVIDIA/libnvidia-container/issues/111
 
 ## Build Docker Image
 
