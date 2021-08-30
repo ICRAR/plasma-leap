@@ -11,7 +11,7 @@ build-image:
   stage: build
   image: docker:latest
   script:
-    - docker build -f Dockerfile -t ${IMAGE} --pull ./sdp-dal-receive
+    - docker build -f sdp-dal-receive/Dockerfile -t ${IMAGE} --pull .
 
 integration-test:
   stage: test
