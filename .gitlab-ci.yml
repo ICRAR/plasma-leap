@@ -9,7 +9,7 @@ variables:
 
 build-image:
   stage: build
-  image: docker:latest
+  image: docker:stable
   script:
     - docker build -f sdp-dal-receive/Dockerfile -t ${IMAGE} --pull .
 
