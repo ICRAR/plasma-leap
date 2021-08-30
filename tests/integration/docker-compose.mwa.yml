@@ -1,0 +1,30 @@
+version: "3.9"
+services:
+
+  plasma-store:
+    image: "icrar/plasma_store:0.3"
+    command: "plasma_store -s /tmp/plasma -m 2000000000"
+    volumes: "./plasma:/plasma"
+
+  mswriter:
+      image: ${IMAGE}
+      command: "plasma-mswriter ./1197638568-split-plasma.ms --max_payloads 1 --max_payload_misses 60 --use_plasma_ms true" # -c 'LeapAccelerateCLI -c leap-mwa.json -f %s'"
+      volumes: "./plasma:/plasma"
+      depends_on:
+        - "plasma-store"
+
+  emu-receive:
+    image: ${IMAGE}
+    command: "emu-recv -c ./1197638568-split.conf"
+    volumes: "./plasma:/plasma"
+    depends_on:
+      - "plasma-store"
+      - "mswriter"
+
+  emu-send:
+    image: ${IMAGE}
+    command: "emu-send -c ./1197638568-split.conf ./1197638568-split.ms"
+    volumes: "./data:/data"
+    depends_on:
+      - "emu-receive"
+
