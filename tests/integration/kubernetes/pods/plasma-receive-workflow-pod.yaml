@@ -45,11 +45,15 @@ spec:
     terminationMessagePath: '/tmp/log/plasma-mswriter.log'
 
   - name: emu-recv
+    # ci image contains msdata files
     image: ska-sdp-receive-leap-ci
     imagePullPolicy: Never
+    workingDir: /msdata/askap
     env:
+    - name: CWD
+      value: /msdata/ska
     - name: SPEAD2_CONFIG_PATH
-      value: /msdata/ska/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf
+      value: ./askap-SS-1100.conf
     volumeMounts:
     - name: shared-plasma
       mountPath: /tmp/plasma
