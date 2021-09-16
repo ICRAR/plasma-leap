@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: volume-test-pod
+spec:
+  restartPolicy: Never
+  volumes:
+  - name: shared-plasma
+    emptyDir: {}
+  - name: shared-logs
+    emptyDir: {}
+  - name: shared-data
+    emptyDir: {}
+    # hostPath bad file descriptor
+    # hostPath:
+    #   path: /msdata
+    #   type: Directory
+
+  containers:
+  - name: plasma-store
+    image: ghcr.io/icrar/plasmaflight:main
+    volumeMounts:
+      - name: shared-plasma
+        mountPath: /tmp/plasma
+      - name: shared-logs
+        mountPath: /tmp/log
+      - name: shared-data
+        mountPath: /msdata/ska
+    command: ['/bin/bash']
+    args: ['-c', 'apt install -y git && git clone https://github.com/ICRAR/plasma-leap.git
+      plasma_store -s /tmp/plasma/plasma0 -m 20000000 &> /tmp/log/plasma-store.log']
+    terminationMessagePath: '/tmp/log/plasma-store.log'
+

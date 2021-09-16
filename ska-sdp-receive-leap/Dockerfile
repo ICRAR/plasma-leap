@@ -50,11 +50,22 @@ RUN mkdir -p /code && cd /code &&\
 # install pyarrow
 RUN pip3 install pyarrow==3.0.0
 
+# build and install latest ska-sdp-dal
+# RUN mkdir -p /code & cd /code &&\
+#     git clone --recursive https://gitlab.com/ska-telescope/sdp/ska-sdp-dal.git &&\
+#     cd ska-sdp-dal &&\
+#     pip3 install -e .
+
+# RUN mkdir -p /code & cd /code &&\
+#     git clone --recursive https://gitlab.com/ska-telescope/sdp/ska-sdp-dal-schemas.git &&\
+#     cd ska-sdp-dal-schemas &&\
+#     pip3 install -e .
+
 # build and install cbf-sdp-emulator TODO: use master branch
 RUN mkdir -p /code && cd /code &&\
     git clone --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
     cd cbf-sdp-emulator &&\
-    pip3 install --extra-index-url=https://nexus.engageska-portugal.pt/repository/pypi/simple -e .[plasma] &&\
+    pip3 install --extra-index-url=https://artefact.skao.int/repository/pypi-all/simple -e .[plasma] &&\
     cd data/; tar xf sim-vis.ms.tar.gz; cd ..
 
 # # install cuda

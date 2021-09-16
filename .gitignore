@@ -22,3 +22,4 @@ samples/mwa
 **/log
 *.cache
 *.hash
+__pycache__

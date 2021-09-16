@@ -13,15 +13,35 @@ variables:
   DOCKER_HOST: tcp://docker:2375/
   DOCKER_DRIVER: overlay2
   DOCKER_TLS_CERTDIR: ""
+  MINIKUBE_VERSION: latest
   IMAGE: sdp-dal-receive:${CI_COMMIT_SHA}
+
+.install_minikube: &install_minikube
+  - apt update && apt install -y curl apt-transport-https
+  - curl -Lo minikube https://github.com/kubernetes/minikube/releases/download/${MINIKUBE_VERSION}/minikube-linux-amd64
+  - chmod +x minikube
+  - mv minikube /usr/local/bin/
+
+.install_kubectl: &install_kubectl
+  - apt update && apt install -y curl apt-transport-https
+  - curl -LO https://storage.googleapis.com/kubernetes-release/release/`curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt`/bin/linux/amd64/kubectl
+  - chmod +x ./kubectl
+  - mv ./kubectl /usr/local/bin/kubectl
 
 build-image:
   stage: build
   image: docker:stable
   script:
-    - docker build -f sdp-dal-receive/Dockerfile -t ${IMAGE} --pull .
+    - *install_minikube
+    - *install_kubectl
+    - eval $(minikube docker-env)
+    - docker build -f sdp-dal-receive-leap/Dockerfile -t ${IMAGE} --pull .
+    - minikube start --driver=docker
+    - minikube mount /msdata:/msdata/ &
+    - python 
 
-integration-test:
+
+.integration-test:
   stage: test
   image: docker:latest
   before_script:

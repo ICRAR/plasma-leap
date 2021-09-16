@@ -72,7 +72,7 @@ update /etc/docker/daemon.json for supporting legacy nvidia-docker scripts
 Note: dockerfile building does not currently support executing cuda binaries. Make sure to not install any cuda drivers during this step.
 
 ```
-docker build -t plasma-leap-receiver .
+docker build -t sdp-dal-receive-leap .
 ```
 
 ## Run and Test Pipeline

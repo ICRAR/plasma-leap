@@ -27,7 +27,7 @@ RUN apt install -y python3-dev wcslib-dev libcfitsio-dev &&\
 #     apt install -y libarrow-dev libplasma-dev
 
 # build and install arrow-plasma
-# NOTE: nvidia-docker requires using newer cuda packages than ones included with arrow-plasma that do not overwrite the the docker cuda drivers
+# NOTE: nvidia-docker requires using newer cuda packages than ones included with arrow-plasma that do not overwrite the docker cuda drivers
 RUN mkdir -p /code && cd /code &&\
     git clone --recursive -b apache-arrow-4.0.0 https://github.com/apache/arrow.git &&\
     cd arrow/cpp &&\
@@ -72,6 +72,7 @@ RUN DEBIAN_FRONTEND=noninteractive apt -y --no-install-recommends install \
     ln -s /usr/local/cuda/targets/x86_64-linux/include /usr/local/cuda/include
 
 # build and install leap-accelerate
+RUN apt install rapidjson-dev pybind11-dev
 RUN mkdir -p /code && cd /code &&\
     git clone --recursive https://gitlab.com/ska-telescope/icrar-leap-accelerate.git &&\
     cd icrar-leap-accelerate &&\
@@ -80,7 +81,7 @@ RUN mkdir -p /code && cd /code &&\
     export PATH=$PATH:$CUDA_HOME/bin &&\
     mkdir -p build/linux/Release && cd build/linux/Release &&\
     cmake ../../.. -DCMAKE_BUILD_TYPE=Release -DCUDA_ENABLED=ON -DBUILD_TESTING=OFF &&\
-    make install
+    make install -j2
 
 # setup pipeline files
 RUN mkdir -p /code && cd /code &&\
