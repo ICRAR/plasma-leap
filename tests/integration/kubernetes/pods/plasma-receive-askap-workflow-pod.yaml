@@ -1,0 +1,83 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: plasma-receive-workflow-pod
+spec:
+  restartPolicy: Never
+  volumes:
+  - name: shared-plasma
+    emptyDir: {}
+  - name: shared-logs
+    emptyDir: {}
+  - name: shared-data
+    hostPath:
+      type: Directory
+      path: /mnt/msdata/
+
+  containers:
+  - name: plasma-store
+    image: ska-sdp-receive-leap
+    imagePullPolicy: Never
+    volumeMounts:
+      - name: shared-plasma
+        mountPath: /tmp/plasma
+      - name: shared-logs
+        mountPath: /tmp/log
+      - name: shared-data
+        mountPath: /msdata
+    command: ['/bin/bash']
+    args: ['-c', 'plasma_store -s /tmp/plasma/plasma0 -m 2000000000 &> /tmp/log/plasma-store.log']
+    terminationMessagePath: '/tmp/log/plasma-store.log'
+
+  - name: plasma-mswriter
+    image: ska-sdp-receive-leap
+    imagePullPolicy: Never
+    env:
+    - name: MS_OUTPUT_PATH
+      value: ./askap-SS-1100-plasma.ms
+    - name: PROCESSOR_COMMAND
+      value: LeapAccelerateCLI -c leap-ska.json -f %s
+    volumeMounts:
+    - name: shared-plasma
+      mountPath: /tmp/plasma
+    - name: shared-logs
+      mountPath: /tmp/log
+    command: ["/bin/bash"]
+    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 --use_plasma_ms true -c '${PROCESSOR_COMMAND}'"]
+    terminationMessagePath: '/tmp/log/plasma-mswriter.log'
+
+  - name: emu-recv
+    image: ska-sdp-receive-leap
+    imagePullPolicy: Never
+    workingDir: /msdata/askap
+    volumeMounts:
+    - name: shared-plasma
+      mountPath: /tmp/plasma
+    - name: shared-logs
+      mountPath: /tmp/log
+    - name: shared-data
+      mountPath: /msdata
+    env:
+    - name: SPEAD2_CONFIG_PATH
+      value: ./askap-SS-1100.conf
+    command: ["/bin/bash"]
+    args: ["-c", "emu-recv -c ${SPEAD2_CONFIG_PATH} &> /tmp/log/emu-recv.log"]
+    terminationMessagePath: '/tmp/log/emu-recv.log'
+
+  # For Testing Only
+  - name: emu-send
+    image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+    imagePullPolicy: Never
+    workingDir: /msdata/askap
+    volumeMounts:
+      - name: shared-data
+        mountPath: /msdata
+    env:
+    - name: SPEAD2_CONFIG_PATH
+      value: ./askap-SS-1100.conf
+    - name: MEASUREMENT_SET
+      value: ./askap-SS-1100.ms
+    command: ["/bin/bash"]
+    args: ["-c", "emu-send -c ${SPEAD2_CONFIG_PATH} ${MEASUREMENT_SET} &> /tmp/log/emu-send.log"]
+    terminationMessagePath: '/tmp/log/emu-send.log'
+
