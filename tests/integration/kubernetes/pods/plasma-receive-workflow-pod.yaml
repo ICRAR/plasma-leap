@@ -24,7 +24,7 @@ spec:
       - name: shared-logs
         mountPath: /tmp/log
     command: ['/bin/bash']
-    args: ['-c', 'plasma_store -s /tmp/plasma/plasma0 -m 20000000 &> /tmp/log/plasma-store.log']
+    args: ['-c', 'plasma_store -s /tmp/plasma/plasma0 -m 2000000000 &> /tmp/log/plasma-store.log']
     terminationMessagePath: '/tmp/log/plasma-store.log'
 
   - name: plasma-mswriter
