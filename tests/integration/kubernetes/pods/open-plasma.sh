@@ -1,1 +1,1 @@
- kubectl exec -it plasma-receive-workflow-pod -c plasma-store -- /bin/bash
+kubectl exec -it plasma-receive-workflow-pod -c plasma-store -- /bin/bash

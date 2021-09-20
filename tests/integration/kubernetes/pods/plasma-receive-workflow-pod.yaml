@@ -9,10 +9,10 @@ spec:
     emptyDir: {}
   - name: shared-logs
     emptyDir: {}
-  #- name: shared-data
-  #  hostPath:
-  #    path: /msdata
-  #    type: Directory
+  - name: shared-data
+    hostPath:
+      type: Directory
+      path: /mnt/msdata/
 
   containers:
   - name: plasma-store
@@ -23,6 +23,8 @@ spec:
         mountPath: /tmp/plasma
       - name: shared-logs
         mountPath: /tmp/log
+      - name: shared-data
+        mountPath: /msdata
     command: ['/bin/bash']
     args: ['-c', 'plasma_store -s /tmp/plasma/plasma0 -m 2000000000 &> /tmp/log/plasma-store.log']
     terminationMessagePath: '/tmp/log/plasma-store.log'
@@ -46,7 +48,7 @@ spec:
 
   - name: emu-recv
     # ci image contains msdata files
-    image: ska-sdp-receive-leap-ci
+    image: ska-sdp-receive-leap
     imagePullPolicy: Never
     workingDir: /msdata/askap
     volumeMounts:
@@ -54,8 +56,8 @@ spec:
       mountPath: /tmp/plasma
     - name: shared-logs
       mountPath: /tmp/log
-    #- name: shared-data
-    #  mountPath: /msdata
+    - name: shared-data
+      mountPath: /msdata
     env:
     - name: SPEAD2_CONFIG_PATH
       value: ./askap-SS-1100.conf
@@ -65,12 +67,12 @@ spec:
 
   # For Testing Only
   - name: emu-send
-    image: ska-sdp-receive-leap-ci
+    image: ska-sdp-receive-leap
     imagePullPolicy: Never
     workingDir: /msdata/askap
-    #volumeMounts:
-    #  - name: shared-data
-    #    mountPath: /msdata
+    volumeMounts:
+      - name: shared-data
+        mountPath: /msdata
     env:
     - name: SPEAD2_CONFIG_PATH
       value: ./askap-SS-1100.conf
