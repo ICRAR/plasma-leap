@@ -49,11 +49,6 @@ spec:
     image: ska-sdp-receive-leap-ci
     imagePullPolicy: Never
     workingDir: /msdata/askap
-    env:
-    - name: CWD
-      value: /msdata/ska
-    - name: SPEAD2_CONFIG_PATH
-      value: ./askap-SS-1100.conf
     volumeMounts:
     - name: shared-plasma
       mountPath: /tmp/plasma
@@ -61,18 +56,27 @@ spec:
       mountPath: /tmp/log
     #- name: shared-data
     #  mountPath: /msdata
+    env:
+    - name: SPEAD2_CONFIG_PATH
+      value: ./askap-SS-1100.conf
     command: ["/bin/bash"]
     args: ["-c", "emu-recv -c ${SPEAD2_CONFIG_PATH} &> /tmp/log/emu-recv.log"]
     terminationMessagePath: '/tmp/log/emu-recv.log'
 
   # For Testing Only
-  # - name: emu-send
-  #   image: plasma-leap-receiver
-  #   imagePullPolicy: Never
-  #   env:
-  #   - name: SPEAD2_CONFIG_PATH
-  #     value: ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf
-  #   command: ["/bin/bash"]
-  #   args: ["-c", "emu-send -c $(SPEAD2_CONFIG_PATH) &> /tmp/log/emu-send.log"]
-  #   terminationMessagePath: '/tmp/log/emu-send.log'
+  - name: emu-send
+    image: ska-sdp-receive-leap-ci
+    imagePullPolicy: Never
+    workingDir: /msdata/askap
+    #volumeMounts:
+    #  - name: shared-data
+    #    mountPath: /msdata
+    env:
+    - name: SPEAD2_CONFIG_PATH
+      value: ./askap-SS-1100.conf
+    - name: MEASUREMENT_SET
+      value: ./askap-SS-1100.ms
+    command: ["/bin/bash"]
+    args: ["-c", "emu-send -c ${SPEAD2_CONFIG_PATH} ${MEASUREMENT_SET}  &> /tmp/log/emu-send.log"]
+    terminationMessagePath: '/tmp/log/emu-send.log'
 

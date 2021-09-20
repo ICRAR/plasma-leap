@@ -63,7 +63,7 @@ RUN pip3 install pyarrow==3.0.0
 
 # build and install cbf-sdp-emulator TODO: use master branch
 RUN mkdir -p /code && cd /code &&\
-    git clone --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git &&\
+    git clone --recursive https://gitlab.com/ska-telescope/cbf-sdp-emulator.git -b sp-1857 &&\
     cd cbf-sdp-emulator &&\
     pip3 install --extra-index-url=https://artefact.skao.int/repository/pypi-all/simple -e .[plasma] &&\
     cd data/; tar xf sim-vis.ms.tar.gz; cd ..
