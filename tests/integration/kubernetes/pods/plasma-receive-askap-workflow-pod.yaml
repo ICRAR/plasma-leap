@@ -43,7 +43,7 @@ spec:
     - name: shared-logs
       mountPath: /tmp/log
     command: ["/bin/bash"]
-    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 --use_plasma_ms true -c '${PROCESSOR_COMMAND}'"]
+    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 -s /tmp/plasma/plasma0 --use_plasma_ms true -c '${PROCESSOR_COMMAND}' &> /tmp/log/plasma-mswriter.log"]
     terminationMessagePath: '/tmp/log/plasma-mswriter.log'
 
   - name: emu-recv

@@ -32,6 +32,7 @@ spec:
   - name: plasma-mswriter
     image: ska-sdp-receive-leap
     imagePullPolicy: Never
+    workingDir: /msdata/ska1
     env:
     - name: MS_OUTPUT_PATH
       value: ./SKA_LOW_SIM_short_EoR0_ionosphere_off_GLEAM-plasma.0001.ms
@@ -43,7 +44,7 @@ spec:
     - name: shared-logs
       mountPath: /tmp/log
     command: ["/bin/bash"]
-    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 --use_plasma_ms true -c '${PROCESSOR_COMMAND}'"]
+    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 -s /tmp/plasma/plasma0 --use_plasma_ms true -c '${PROCESSOR_COMMAND}' &> /tmp/log/plasma-mswriter.log"]
     terminationMessagePath: '/tmp/log/plasma-mswriter.log'
 
   - name: emu-recv
@@ -68,7 +69,7 @@ spec:
   - name: emu-send
     image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
     imagePullPolicy: Never
-    workingDir: /msdata/askap
+    workingDir: /msdata/ska1
     volumeMounts:
       - name: shared-data
         mountPath: /msdata
