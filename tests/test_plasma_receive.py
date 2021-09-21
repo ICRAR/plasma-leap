@@ -1,38 +1,109 @@
 #!usr/bin/env python
 
+from typing import List
+from enum import Enum
+from dataclasses import dataclass
 import pytest
-from kubernetes import client, config
+import time
+import yaml
+from os import path
+from kubernetes import client, config, watch
+from kubernetes.client.rest import ApiException
+
+#PLASMA_TEST_NAMESPACE = 'plasma-receive-tests'
+PLASMA_TEST_NAMESPACE = 'default'
+# 'plasma-receive-askap'
+TEST_POD_NAME = 'plasma-receive-workflow-pod'
+
+class PodPhase(Enum):
+    Pending = "Pending"
+    Running = "Running"
+
+@dataclass
+class PodState:
+    running: int
+    waiting: int
+    completed: int
+    failed: int
+
+    @classmethod
+    def from_container_states(cls, container_states: List[client.V1ContainerState]):
+        pod_state = PodState(0,0,0,0)
+        for state in container_states:
+            if state.running != None:
+                pod_state.running = pod_state.running + 1
+            if state.waiting != None:
+                pod_state.waiting = pod_state.waiting + 1
+            if state.terminated != None:
+                if state.terminated.exit_code == 0:
+                    pod_state.completed = pod_state.completed + 1
+                else:
+                    pod_state.failed = pod_state.failed + 1
+        return pod_state
+
+    @classmethod
+    def from_container_statuses(cls, container_statuses):
+        pod_state = PodState(0,0,0,0)
+        for status in container_statuses:
+            state = status.state
+            if state.running != None:
+                pod_state.running = pod_state.running + 1
+            if state.waiting != None:
+                pod_state.waiting = pod_state.waiting + 1
+            if state.terminated != None:
+                if state.terminated.exit_code == 0:
+                    pod_state.completed = pod_state.completed + 1
+                else:
+                    pod_state.failed = pod_state.failed + 1
+        return pod_state
 
 @pytest.fixture
 def k8s_client() -> client.CoreV1Api:
     config.load_kube_config("~/.kube/config")
     return client.CoreV1Api()
 
-def test_kubernetes_components_healthy(k8s_client):
-    components = k8s_client.list_component_status()
-    for component in components.items:
-        assert component.conditions[0].type == "Healthy"
+def test_plasma_receive_askap(k8s_client):
+    resp: client.V1Pod = None
 
-def test_kubernetes_master_controller_status_is_healthy(k8s_client):
-    ret = k8s_client.read_component_status('controller-manager')
-    assert(ret.conditions[0].type == "Healthy" ) # Verify status of Master Controller
+    try:
+        resp = k8s_client.read_namespaced_pod(name=TEST_POD_NAME, namespace=PLASMA_TEST_NAMESPACE)
+        raise Exception("Test pod aleady running")
+    except ApiException as e:
+        if e.status != 404:
+            raise
+    
+    with open(path.join(path.dirname(__file__), "integration/kubernetes/pods/plasma-receive-askap-workflow-pod.yaml")) as f:
+        pod_manifest = yaml.safe_load(f)
 
-def test_kubernetes_node_status(k8s_client):
-    nodes = k8s_client.list_node()
+    #k8s_client.create_namespace()
+    resp = k8s_client.create_namespaced_pod(body=pod_manifest, namespace=PLASMA_TEST_NAMESPACE)
+    
+    try:
+        last_state = PodState(0,0,0,0)
+        w = watch.Watch()
+        pod_completed = False
+        for event in w.stream(k8s_client.list_namespaced_pod, PLASMA_TEST_NAMESPACE, timeout_seconds=10):
+            pod: client.V1Pod = event['object']
+            #print(f"Event: {event['type']} {pod.kind} {pod.metadata.name}")
+            #print(f"{pod.status} {dir(pod)}")
 
-    for item in nodes.items:
-        assert item.metadata.name == "minikube"
-        node = k8s_client.read_node_status(name=item.metadata.name)
-        assert node.status.conditions[0].status == "False"
-        assert node.status.conditions[1].status == "False"
-        assert node.status.conditions[2].status == "False"
-        assert node.status.conditions[3].type == "Ready"
+            if pod.status.phase != PodPhase.Pending.name:
+                container_states = []
+                for status in pod.status.container_statuses:
+                    status: client.V1ContainerStatus
+                    container_states.append(status.state)
+                print(container_states)
 
-def test_kubernetes_pod_status_is_completed(k8s_client):
-    podlist = k8s_client.list_namespaced_pod("default")
-    # Iterate through all the pods in the default namespace and verify that they are Running
-    for item in podlist.items:
-        pod = k8s_client.read_namespaced_pod_status(namespace='default', name=item.metadata.name)
-        print("%s\t%s\t" % (item.metadata.name, item.metadata.namespace))
-        print(pod.status.phase)
-        assert(pod.status.phase == "Completed")
+                #last_state = PodState.from_container_states(container_states)
+                last_state = PodState.from_container_statuses(pod.status.container_statuses)
+
+                print(last_state)
+                if last_state == PodState(2, 0, 2, 0):
+                    pod_completed = True
+                    break
+
+    finally:
+        k8s_client.delete_namespaced_pod(name=TEST_POD_NAME, namespace=PLASMA_TEST_NAMESPACE, grace_period_seconds=0)
+        pass
+
+    assert pod_completed
