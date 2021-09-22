@@ -20,7 +20,7 @@ CBF_SDP_RECEIVER_ARGS="-c ./askap-SS-1100.conf"
 
 # PLASMA-MSWRITER
 PLASMA_MSWRITER_COMMAND=plasma-mswriter
-PLASMA_MSWRITER_ARGS="./askap-SS-1100.ms --max_payloads 1 --max_payload_misses 60"
+PLASMA_MSWRITER_ARGS="./askap-SS-1100-plasma.ms --max_payloads 1 --use_plasma_ms 1 --max_payload_misses 60"
 
 # PLASMA-STORE
 PLASMA_STORE_COMMAND=plasma_store
@@ -28,7 +28,7 @@ PLASMA_STORE_ARGS="-s /tmp/plasma -m 2000000000"
 
 # LEAP-ACCELERATE
 LEAP_ACCELERATE_COMMAND=LeapAccelerateCLI
-LEAP_ACCELERATE_ARGS="-f askap-SS-1100.ms -d [[0,0],[1,1]]"
+LEAP_ACCELERATE_ARGS="-f askap-SS-1100-plasma.ms -d [[0,0],[1,1]]"
 
 session=askap
 
