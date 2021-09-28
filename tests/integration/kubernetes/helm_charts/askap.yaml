@@ -1,0 +1,50 @@
+# Default values for CBF-SDP emulator
+# Declare variables to be passed into your templates.
+
+name: send-recv-plasma-askap-workflow
+
+volumes:
+  host:
+    mount: /mnt
+    in_msdata: /mnt/msdata
+    out_msdata: /mnt/msdata/out
+
+input:
+  mountType: hostPath
+  mountPath: /msdata
+  dataPath: /msdata/askap
+  measurementSet: /msdata/askap/askap-SS-1100.ms
+  spead2Config: /msdata/askap/askap-SS-1100.conf
+  mountTypeOptions:
+    type: Directory
+    path: /mnt/msdata
+
+output:
+  mountType: hostPath
+  mountPath: /msdata/out
+  mountTypeOptions:
+    type: Directory
+    path: /mnt/msdata/out
+
+plasma_store:
+  image: ghcr.io/icrar/plasmaflight:main
+  mountPath: /tmp/plasma_store
+  plasmaSocket: /tmp/plasma_store/plasma0
+
+leap_cli:
+  command: LeapAccelerateCLI
+  config: leap-askap.json
+
+plasma_mswriter:
+  image: ska-sdp-receive-leap
+  ms_output_name: askap-SS-1100-plasma.ms
+
+emu_recv:
+  image: ska-sdp-receive-leap
+
+emu_send:
+  image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+  imagePullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""

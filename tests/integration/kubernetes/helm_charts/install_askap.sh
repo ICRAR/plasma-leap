@@ -1,0 +1,1 @@
+helm install askap-test ./send-recv-plasma-leap --values askap.yaml

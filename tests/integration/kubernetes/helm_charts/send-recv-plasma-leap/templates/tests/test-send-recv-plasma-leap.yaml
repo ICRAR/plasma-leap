@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: "{{ .Release.Name }}-test"
+  annotations:
+    "helm.sh/hook": test
+spec:
+  restartPolicy: Never
+  containers:
+  - name: ms-test
+    image: ska-sdp-receive-leap
+    imagePullPolicy: Never
+    command:
+    - ls

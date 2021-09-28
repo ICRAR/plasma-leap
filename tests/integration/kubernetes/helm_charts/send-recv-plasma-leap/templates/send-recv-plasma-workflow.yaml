@@ -1,7 +1,8 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: plasma-receive-workflow-pod
+  name: {{ .Values.name }}
+  namespace: {{ .Release.Namespace }}
 spec:
   restartPolicy: Never
   volumes:
@@ -13,13 +14,15 @@ spec:
   - name: shared-logs
     emptyDir: {}
   - name: shared-data
-    hostPath:
-      type: Directory
-      path: /mnt/msdata
+    {{ .Values.input.mountType }}:
+    {{- with .Values.input.mountTypeOptions }}
+      {{- toYaml . | nindent 10 }}
+    {{- end }}
   - name: out-data
-    hostPath:
-      type: Directory
-      path: /mnt/msdata/out
+    {{ .Values.output.mountType }}:
+    {{- with .Values.output.mountTypeOptions }}
+      {{- toYaml . | nindent 10 }}
+    {{- end }}
 
   containers:
   - name: plasma-store
@@ -29,69 +32,69 @@ spec:
       - name: shared-mem
         mountPath: /dev/shm
       - name: shared-plasma
-        mountPath: /tmp/plasma_store
+        mountPath: {{ .Values.plasma_store.mountPath }}
       - name: shared-logs
         mountPath: /tmp/log
       - name: shared-data
-        mountPath: /msdata
+        mountPath: {{ .Values.input.mountPath }}
     command: ['/bin/bash']
-    args: ['-c', 'plasma_store -s /tmp/plasma_store/plasma0 -m 200000000 &> /tmp/log/plasma-store.log']
+    args: ['-c', 'plasma_store -s {{ .Values.plasma_store.plasmaSocket }} -m 200000000 &> /tmp/log/plasma-store.log']
     terminationMessagePath: '/tmp/log/plasma-store.log'
 
   - name: plasma-mswriter
-    image: ska-sdp-receive-leap
+    image: {{ .Values.plasma_mswriter.image }}
     imagePullPolicy: Never
-    workingDir: /msdata/askap
+    workingDir: {{ .Values.input.dataPath }}
     env:
     - name: MS_OUTPUT_PATH
-      value: /msdata/out/askap-SS-1100-plasma.ms
+      value: {{ .Values.output.mountPath }}/{{ .Values.plasma_mswriter.ms_output_name }}
     - name: PROCESSOR_COMMAND
-      value: LeapAccelerateCLI -c leap-ska.json -f %s
+      value: {{ .Values.leap_cli.command }} -c {{ .Values.leap_cli.config }} -f %s
     volumeMounts:
     - name: shared-mem
       mountPath: /dev/shm
     - name: shared-plasma
-      mountPath: /tmp/plasma_store
+      mountPath: {{ .Values.plasma_store.mountPath }}
     - name: shared-logs
       mountPath: /tmp/log
     - name: shared-data
-      mountPath: /msdata
+      mountPath: {{ .Values.input.mountPath }}
     - name: out-data
-      mountPath: /msdata/out
+      mountPath: {{ .Values.output.mountPath }}
     command: ["/bin/bash"]
-    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} -s /tmp/plasma_store/plasma0 --use_plasma_ms 1 --max_payloads 1 --max_ms 1 &> /msdata/log/plasma-mswriter.log"]
+    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} -s {{ .Values.plasma_store.plasmaSocket }} --use_plasma_ms 1 --max_payloads 1 --max_ms 1 &> /msdata/log/plasma-mswriter.log"]
 
   - name: emu-recv
-    image: ska-sdp-receive-leap
+    image: {{ .Values.emu_recv.image }}
     imagePullPolicy: Never
-    workingDir: /msdata/askap
+    workingDir: {{ .Values.input.dataPath }}
     volumeMounts:
     - name: shared-plasma
-      mountPath: /tmp/plasma_store
+      mountPath: {{ .Values.plasma_store.mountPath }}
     - name: shared-logs
       mountPath: /tmp/log
     - name: shared-data
-      mountPath: /msdata
+      mountPath: {{ .Values.input.mountPath }}
     env:
     - name: SPEAD2_CONFIG_PATH
-      value: ./askap-SS-1100.conf
+      value: {{ .Values.input.spead2Config }}
     command: ["/bin/bash"]
     args: ["-c", "emu-recv -c ${SPEAD2_CONFIG_PATH} &> /tmp/log/emu-recv.log"]
     terminationMessagePath: '/tmp/log/emu-recv.log'
 
   # For testing only, can be a seperate service
   - name: emu-send
-    image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+    image: {{ .Values.emu_send.image }}
     imagePullPolicy: Never
-    workingDir: /msdata/askap
+    workingDir: {{ .Values.input.dataPath }}
     volumeMounts:
       - name: shared-data
-        mountPath: /msdata
+        mountPath: {{ .Values.input.mountPath }}
     env:
     - name: SPEAD2_CONFIG_PATH
-      value: ./askap-SS-1100.conf
+      value: {{ .Values.input.spead2Config }}
     - name: MEASUREMENT_SET
-      value: ./askap-SS-1100.ms
+      value: {{ .Values.input.measurementSet }}
     command: ["/bin/bash"]
     args: ["-c", "emu-send -c ${SPEAD2_CONFIG_PATH} ${MEASUREMENT_SET} &> /tmp/log/emu-send.log"]
     terminationMessagePath: '/tmp/log/emu-send.log'

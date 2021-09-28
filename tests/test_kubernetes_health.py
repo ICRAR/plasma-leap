@@ -36,4 +36,4 @@ def test_kubernetes_pod_status_is_completed(k8s_client):
         pod = k8s_client.read_namespaced_pod_status(namespace='default', name=item.metadata.name)
         print("%s\t%s\t" % (item.metadata.name, item.metadata.namespace))
         print(pod.status.phase)
-        assert(pod.status.phase == "Running")
+        assert(pod.status.phase == "Running" or pod.status.phase == "Succeeded")

@@ -28,6 +28,6 @@ spec:
         mountPath: /msdata/ska
     command: ['/bin/bash']
     args: ['-c', 'apt install -y git && git clone https://github.com/ICRAR/plasma-leap.git
-      plasma_store -s /tmp/plasma/plasma0 -m 20000000 &> /tmp/log/plasma-store.log']
+      plasma_store -s /tmp/plasma -m 20000000 &> /tmp/log/plasma-store.log']
     terminationMessagePath: '/tmp/log/plasma-store.log'
 

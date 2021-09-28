@@ -5,6 +5,9 @@ metadata:
 spec:
   restartPolicy: Never
   volumes:
+  - name: shared-mem
+    emptyDir:
+      medium: Memory
   - name: shared-plasma
     emptyDir: {}
   - name: shared-logs
@@ -19,65 +22,70 @@ spec:
     image: ska-sdp-receive-leap
     imagePullPolicy: Never
     volumeMounts:
+      - name: shared-mem
+        mountPath: /dev/shm
       - name: shared-plasma
-        mountPath: /tmp/plasma
+        mountPath: /tmp/plasma_store
       - name: shared-logs
         mountPath: /tmp/log
       - name: shared-data
         mountPath: /msdata
     command: ['/bin/bash']
-    args: ['-c', 'plasma_store -s /tmp/plasma -m 2000000000 &> /tmp/log/plasma-store.log']
+    args: ['-c', 'plasma_store -s /tmp/plasma_store/plasma0 -m 200000000 &> /tmp/log/plasma-store.log']
     terminationMessagePath: '/tmp/log/plasma-store.log'
 
   - name: plasma-mswriter
     image: ska-sdp-receive-leap
     imagePullPolicy: Never
-    workingDir: /msdata/ska300
+    workingDir: /msdata/askap
     env:
     - name: MS_OUTPUT_PATH
-      value: ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM-plasma.ms
+      value: ./askap-SS-1100-plasma.ms
     - name: PROCESSOR_COMMAND
       value: LeapAccelerateCLI -c leap-ska.json -f %s
     volumeMounts:
+    - name: shared-mem
+      mountPath: /dev/shm
     - name: shared-plasma
-      mountPath: /tmp/plasma
+      mountPath: /tmp/plasma_store
     - name: shared-logs
       mountPath: /tmp/log
+    - name: shared-data
+      mountPath: /msdata
     command: ["/bin/bash"]
-    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 -s /tmp/plasma --use_plasma_ms true -c '${PROCESSOR_COMMAND}' &> /tmp/log/plasma-mswriter.log"]
-    terminationMessagePath: '/tmp/log/plasma-mswriter.log'
+    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} -s /tmp/plasma_store/plasma0 --max_payloads 1 --use_plasma_ms 0 &> /msdata/log/plasma-mswriter.log"]
 
   - name: emu-recv
     image: ska-sdp-receive-leap
     imagePullPolicy: Never
-    workingDir: /msdata/ska300
+    workingDir: /msdata/askap
     volumeMounts:
     - name: shared-plasma
-      mountPath: /tmp/plasma
+      mountPath: /tmp/plasma_store
     - name: shared-logs
       mountPath: /tmp/log
     - name: shared-data
       mountPath: /msdata
     env:
     - name: SPEAD2_CONFIG_PATH
-      value: ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf
+      value: ./askap-SS-1100.conf
     command: ["/bin/bash"]
     args: ["-c", "emu-recv -c ${SPEAD2_CONFIG_PATH} &> /tmp/log/emu-recv.log"]
     terminationMessagePath: '/tmp/log/emu-recv.log'
 
-  # For Testing Only
+  # For testing only, can be a seperate service
   - name: emu-send
     image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
     imagePullPolicy: Never
-    workingDir: /msdata/ska300
+    workingDir: /msdata/askap
     volumeMounts:
       - name: shared-data
         mountPath: /msdata
     env:
     - name: SPEAD2_CONFIG_PATH
-      value: ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf
+      value: ./askap-SS-1100.conf
     - name: MEASUREMENT_SET
-      value: ./SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS
+      value: ./askap-SS-1100.ms
     command: ["/bin/bash"]
     args: ["-c", "emu-send -c ${SPEAD2_CONFIG_PATH} ${MEASUREMENT_SET} &> /tmp/log/emu-send.log"]
     terminationMessagePath: '/tmp/log/emu-send.log'

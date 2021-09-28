@@ -26,7 +26,7 @@ spec:
       - name: shared-data
         mountPath: /msdata
     command: ['/bin/bash']
-    args: ['-c', 'plasma_store -s /tmp/plasma/plasma0 -m 2000000000 &> /tmp/log/plasma-store.log']
+    args: ['-c', 'plasma_store -s /tmp/plasma -m 2000000000 &> /tmp/log/plasma-store.log']
     terminationMessagePath: '/tmp/log/plasma-store.log'
 
   - name: plasma-mswriter
@@ -44,7 +44,7 @@ spec:
     - name: shared-logs
       mountPath: /tmp/log
     command: ["/bin/bash"]
-    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 -s /tmp/plasma/plasma0 --use_plasma_ms true -c '${PROCESSOR_COMMAND}' &> /tmp/log/plasma-mswriter.log"]
+    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} --max_payloads 1 -s /tmp/plasma --use_plasma_ms true -c '${PROCESSOR_COMMAND}' &> /tmp/log/plasma-mswriter.log"]
     terminationMessagePath: '/tmp/log/plasma-mswriter.log'
 
   - name: emu-recv
