@@ -1,10 +1,15 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: {{ .Values.name }}
+  name: {{ template "send-recv-plasma-leap.fullname" . }}
   namespace: {{ .Release.Namespace }}
+  labels:
+    app: emu-recv
 spec:
-  restartPolicy: Never
+  restartPolicy: {{ .Values.pod.restartPolicy }}
+  terminationGracePeriodSeconds: {{ .Values.pod.terminationGracePeriodSeconds }}
+
+  hostname: {{ template "send-recv-plasma-leap.fullname" . }}
   volumes:
   - name: shared-mem
     emptyDir:
@@ -12,8 +17,10 @@ spec:
   - name: shared-plasma
     emptyDir: {}
   - name: shared-logs
-    emptyDir: {}
-  - name: shared-data
+    hostPath:
+      type: Directory
+      path: /mnt/msdata/log
+  - name: in-data
     {{ .Values.input.mountType }}:
     {{- with .Values.input.mountTypeOptions }}
       {{- toYaml . | nindent 10 }}
@@ -35,15 +42,18 @@ spec:
         mountPath: {{ .Values.plasma_store.mountPath }}
       - name: shared-logs
         mountPath: /tmp/log
-      - name: shared-data
+      - name: in-data
         mountPath: {{ .Values.input.mountPath }}
     command: ['/bin/bash']
-    args: ['-c', 'plasma_store -s {{ .Values.plasma_store.plasmaSocket }} -m 200000000 &> /tmp/log/plasma-store.log']
-    terminationMessagePath: '/tmp/log/plasma-store.log'
+    args: ['-c', 'plasma_store -s {{ .Values.plasma_store.plasmaSocket }} -m 200000000 &> /tmp/log/{{ .Values.logName }}-plasma-store.log']
+    terminationMessagePath: '/tmp/log/{{ .Values.logName }}-plasma-store.log'
 
   - name: plasma-mswriter
     image: {{ .Values.plasma_mswriter.image }}
     imagePullPolicy: Never
+    #resources:
+    #  limits:
+    #    nvidia.com/gpu: 1
     workingDir: {{ .Values.input.dataPath }}
     env:
     - name: MS_OUTPUT_PATH
@@ -57,12 +67,12 @@ spec:
       mountPath: {{ .Values.plasma_store.mountPath }}
     - name: shared-logs
       mountPath: /tmp/log
-    - name: shared-data
+    - name: in-data
       mountPath: {{ .Values.input.mountPath }}
     - name: out-data
       mountPath: {{ .Values.output.mountPath }}
     command: ["/bin/bash"]
-    args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} -s {{ .Values.plasma_store.plasmaSocket }} --use_plasma_ms 1 --max_payloads 1 --max_ms 1 &> /msdata/log/plasma-mswriter.log"]
+    args: ["-c", "plasma-mswriter $MS_OUTPUT_PATH -s {{ .Values.plasma_store.plasmaSocket }} --use_plasma_ms 1 --max_payloads 1 --max_ms 1 &> /tmp/log/{{ .Values.logName }}-plasma-mswriter.log"]
 
   - name: emu-recv
     image: {{ .Values.emu_recv.image }}
@@ -73,29 +83,13 @@ spec:
       mountPath: {{ .Values.plasma_store.mountPath }}
     - name: shared-logs
       mountPath: /tmp/log
-    - name: shared-data
+    - name: in-data
       mountPath: {{ .Values.input.mountPath }}
+    - name: out-data
+      mountPath: {{ .Values.output.mountPath }}
     env:
     - name: SPEAD2_CONFIG_PATH
       value: {{ .Values.input.spead2Config }}
     command: ["/bin/bash"]
-    args: ["-c", "emu-recv -c ${SPEAD2_CONFIG_PATH} &> /tmp/log/emu-recv.log"]
-    terminationMessagePath: '/tmp/log/emu-recv.log'
-
-  # For testing only, can be a seperate service
-  - name: emu-send
-    image: {{ .Values.emu_send.image }}
-    imagePullPolicy: Never
-    workingDir: {{ .Values.input.dataPath }}
-    volumeMounts:
-      - name: shared-data
-        mountPath: {{ .Values.input.mountPath }}
-    env:
-    - name: SPEAD2_CONFIG_PATH
-      value: {{ .Values.input.spead2Config }}
-    - name: MEASUREMENT_SET
-      value: {{ .Values.input.measurementSet }}
-    command: ["/bin/bash"]
-    args: ["-c", "emu-send -c ${SPEAD2_CONFIG_PATH} ${MEASUREMENT_SET} &> /tmp/log/emu-send.log"]
-    terminationMessagePath: '/tmp/log/emu-send.log'
-
+    args: ["-c", "emu-recv -c ${SPEAD2_CONFIG_PATH} &> /tmp/log/{{ .Values.logName }}-emu-recv.log"]
+    terminationMessagePath: '/tmp/log/{{ .Values.logName }}-emu-recv.log'

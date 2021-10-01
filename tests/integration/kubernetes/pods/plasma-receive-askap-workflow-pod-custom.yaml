@@ -12,7 +12,7 @@ spec:
     emptyDir: {}
   - name: shared-logs
     emptyDir: {}
-  - name: shared-data
+  - name: in-data
     hostPath:
       type: Directory
       path: /mnt/msdata/
@@ -28,7 +28,7 @@ spec:
         mountPath: /tmp/plasma_store
       - name: shared-logs
         mountPath: /tmp/log
-      - name: shared-data
+      - name: in-data
         mountPath: /msdata
     command: ['/bin/bash']
     args: ['-c', 'plasma_store -s /tmp/plasma_store/plasma0 -m 200000000 &> /tmp/log/plasma-store.log']
@@ -50,7 +50,7 @@ spec:
       mountPath: /tmp/plasma_store
     - name: shared-logs
       mountPath: /tmp/log
-    - name: shared-data
+    - name: in-data
       mountPath: /msdata
     command: ["/bin/bash"]
     args: ["-c", "plasma-mswriter ${MS_OUTPUT_PATH} -s /tmp/plasma_store/plasma0 --max_payloads 1 --use_plasma_ms 0 &> /msdata/log/plasma-mswriter.log"]
@@ -64,7 +64,7 @@ spec:
       mountPath: /tmp/plasma_store
     - name: shared-logs
       mountPath: /tmp/log
-    - name: shared-data
+    - name: in-data
       mountPath: /msdata
     env:
     - name: SPEAD2_CONFIG_PATH
@@ -79,7 +79,7 @@ spec:
     imagePullPolicy: Never
     workingDir: /msdata/askap
     volumeMounts:
-      - name: shared-data
+      - name: in-data
         mountPath: /msdata
     env:
     - name: SPEAD2_CONFIG_PATH

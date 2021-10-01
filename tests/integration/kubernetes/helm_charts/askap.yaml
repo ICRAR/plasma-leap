@@ -1,7 +1,7 @@
 # Default values for CBF-SDP emulator
 # Declare variables to be passed into your templates.
 
-name: send-recv-plasma-askap-workflow
+name: send-recv-plasma-leap-ska1
 
 volumes:
   host:
@@ -31,20 +31,25 @@ plasma_store:
   mountPath: /tmp/plasma_store
   plasmaSocket: /tmp/plasma_store/plasma0
 
-leap_cli:
-  command: LeapAccelerateCLI
-  config: leap-askap.json
-
 plasma_mswriter:
   image: ska-sdp-receive-leap
   ms_output_name: askap-SS-1100-plasma.ms
+  leap:
+    command: LeapAccelerateCLI
+    config: leap-askap.json
 
 emu_recv:
-  image: ska-sdp-receive-leap
+  image: ska-sdp-receive-leap # TODO: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
 
 emu_send:
   image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
   imagePullPolicy: IfNotPresent
+
+metrics:
+  annotations: {}
+
+service:
+  annotations: {}
 
 nameOverride: ""
 fullnameOverride: ""

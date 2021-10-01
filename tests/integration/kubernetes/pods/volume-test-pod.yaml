@@ -9,7 +9,7 @@ spec:
     emptyDir: {}
   - name: shared-logs
     emptyDir: {}
-  - name: shared-data
+  - name: in-data
     emptyDir: {}
     # hostPath bad file descriptor
     # hostPath:
@@ -24,7 +24,7 @@ spec:
         mountPath: /tmp/plasma
       - name: shared-logs
         mountPath: /tmp/log
-      - name: shared-data
+      - name: in-data
         mountPath: /msdata/ska
     command: ['/bin/bash']
     args: ['-c', 'apt install -y git && git clone https://github.com/ICRAR/plasma-leap.git

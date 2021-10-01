@@ -9,7 +9,7 @@ RUN mkdir -p /code && cd /code &&\
     apt-add-repository multiverse &&\
     apt-add-repository restricted &&\
     apt update &&\
-    apt install -y casacore-dev
+    apt install -y casacore-dev casacore-tools
 
 # install python3-casacore
 # NOTE: pip3 python-casacore and apt python3-casacore bundles it's own libcasa_tables-xyz.so different to kernsuite. Installing with

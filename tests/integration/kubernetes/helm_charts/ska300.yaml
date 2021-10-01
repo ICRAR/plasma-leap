@@ -1,1 +1,51 @@
  
+# Default values for CBF-SDP emulator
+# Declare variables to be passed into your templates.
+
+name: send-recv-plasma-ska300-workflow
+
+volumes:
+  host:
+    mount: /mnt
+    in_msdata: /mnt/msdata
+    out_msdata: /mnt/msdata/out
+
+input:
+  mountType: hostPath
+  mountPath: /msdata
+  dataPath: /msdata/ska300
+  measurementSet: /msdata/ska300/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.MS
+  spead2Config: /msdata/ska300/SKA_LOW_SIM_short_EoR0_ionosphere_on_GLEAM.conf
+  mountTypeOptions:
+    type: Directory
+    path: /mnt/msdata
+
+output:
+  mountType: hostPath
+  mountPath: /msdata/out
+  mountTypeOptions:
+    type: Directory
+    path: /mnt/msdata/out
+
+plasma_store:
+  image: ghcr.io/icrar/plasmaflight:main
+  mountPath: /tmp/plasma_store
+  plasmaSocket: /tmp/plasma_store/plasma0
+
+leap_cli:
+  command: LeapAccelerateCLI
+  config: leap-ska300.json
+
+plasma_mswriter:
+  image: ska-sdp-receive-leap
+  ms_output_name: SKA_LOW_SIM_short_EoR0_ionosphere_off_GLEAM.0001-plasma.ms
+
+emu_recv:
+  image: ska-sdp-receive-leap # TODO: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+
+emu_send:
+  image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+  imagePullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""

@@ -1,0 +1,8 @@
+Thank you for installing {{ .Chart.Name }}
+
+Your release is named {{ .Release.Name }}
+
+emu-recv can be accessed via the following DNS name and port from within your cluster:
+{{ template "send-recv-plasma-leap.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:41000
+
+For bug reporting and FAQ visit https://github.com/ICRAR/plasma-leap

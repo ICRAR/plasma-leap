@@ -1,14 +1,91 @@
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ .Release.Name }}-test"
+  name: "{{ .Release.Name }}-helmtest"
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: {{ include "send-recv-plasma-leap.fullname" . }}
+    helm.sh/chart: {{ include "send-recv-plasma-leap.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/release: "{{ .Release.Name }}"
+    app.kubernetes.io/heritage: "{{ .Release.Service }}"
   annotations:
-    "helm.sh/hook": test
+    "helm.sh/hook": test-success
 spec:
   restartPolicy: Never
+  volumes:
+  - name: shared-logs
+    hostPath:
+      type: Directory
+      path: /mnt/msdata/log
+  - name: in-data
+    {{ .Values.input.mountType }}:
+    {{- with .Values.input.mountTypeOptions }}
+      {{- toYaml . | nindent 10 }}
+    {{- end }}
+  - name: out-data
+    {{ .Values.output.mountType }}:
+    {{- with .Values.output.mountTypeOptions }}
+      {{- toYaml . | nindent 10 }}
+    {{- end }}
+
   containers:
-  - name: ms-test
-    image: ska-sdp-receive-leap
+  - name: emu-send
+    image: {{ .Values.emu_send.image }}
     imagePullPolicy: Never
-    command:
-    - ls
+    workingDir: {{ .Values.input.dataPath }}
+    volumeMounts:
+      - name: shared-logs
+        mountPath: /tmp/log
+      - name: in-data
+        mountPath: {{ .Values.input.mountPath }}
+      - name: out-data
+        mountPath: {{ .Values.output.mountPath }}
+    env:
+    - name: EMU_RECV_HOST
+      value: 172.17.0.3
+      # value: {{ template "send-recv-plasma-leap.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+    - name: EMU_RECV_PORT
+      value: "41000"
+    - name: SPEAD2_CONFIG_PATH
+      value: {{ .Values.input.spead2Config }}
+    - name: MEASUREMENT_SET
+      value: {{ .Values.input.measurementSet }}
+    - name: PLASMA_SOCKET
+      value: {{ .Values.plasma_store.plasmaSocket }}
+    command: ["/bin/bash", "-c"]
+    args:
+      - >
+        emu-send
+        -o transmission.method=spead2_transmitters
+        -o transmission.rate=5333333
+        -o transmission.target_host=$EMU_RECV_HOST
+        -o transmission.target_port_start=$EMU_RECV_PORT $MEASUREMENT_SET
+        &> /tmp/log/{{ .Values.logName }}-emu-send.log &&
+        sleep 2
+        &>> /tmp/log/{{ .Values.logName }}-emu-send.log &&
+        cd {{ .Values.output.mountPath }}/{{ .Values.plasma_mswriter.ms_output_name }}.00
+        &>> /tmp/log/{{ .Values.logName }}-emu-send.log &&
+        cd .. &&
+        rm -rf {{ .Values.output.mountPath }}/{{ .Values.plasma_mswriter.ms_output_name }}.00
+        &>> /tmp/log/{{ .Values.logName }}-emu-send.log
+    terminationMessagePath: '/tmp/log/{{ .Values.logName }}-emu-send.log'
+    
+    # &&
+    #     sleep 5 &&
+    #     rm -rf {{ .Values.output.mountPath }}/{{ .Values.plasma_mswriter.ms_output_name }}
+    #     &> /tmp/log/{{ .Values.logName }}-emu-send.log
+
+
+  # - name: test-ms
+  #   image: ska-sdp-receive-leap
+  #   imagePullPolicy: Never
+  #   workingDir: {{ .Values.input.dataPath }}
+  #   volumeMounts:
+  #     - name: shared-logs
+  #       mountPath: /tmp/log
+  #     - name: in-data
+  #       mountPath: {{ .Values.input.mountPath }}
+  #   command: ["/bin/bash"]
+  #   args: ["-c", "sleep 20 && showtableinfo in={{ .Values.output.mountPath }}/{{ .Values.plasma_mswriter.ms_output_name }} && rm -rf {{ .Values.output.mountPath }}/{{ .Values.plasma_mswriter.ms_output_name }}'"]

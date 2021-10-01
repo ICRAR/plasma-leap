@@ -1,1 +1,71 @@
  
+# Default values for CBF-SDP emulator
+# Declare variables to be passed into your templates.
+
+logName: ska1-send-recv-plasma-leap
+
+volumes:
+  host:
+    mount: /mnt
+    in_msdata: /mnt/msdata
+    out_msdata: /mnt/msdata/out
+
+input:
+  mountType: hostPath
+  mountPath: /msdata
+  dataPath: /msdata/ska1
+  measurementSet: /msdata/ska1/SKA_LOW_SIM_short_EoR0_ionosphere_off_GLEAM.0001.ms
+  spead2Config: /msdata/ska1/SKA_LOW_SIM_short_EoR0_ionosphere_off_GLEAM.0001.conf
+  mountTypeOptions:
+    type: Directory
+    path: /mnt/msdata
+
+output:
+  mountType: hostPath
+  mountPath: /msdata/out
+  mountTypeOptions:
+    type: Directory
+    path: /mnt/msdata/out
+
+leap_cli:
+  command: LeapAccelerateCLI
+  config: leap-ska1.json
+
+plasma_store:
+  image: ghcr.io/icrar/plasmaflight:main
+  mountPath: /tmp/plasma_store
+  plasmaSocket: /tmp/plasma_store/plasma0
+
+plasma_mswriter:
+  image: ska-sdp-receive-leap
+  ms_output_name: SKA_LOW_SIM_short_EoR0_ionosphere_off_GLEAM.0001-plasma.ms
+
+emu_recv:
+  image: ska-sdp-receive-leap  # TODO: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+
+# Used in testing only
+emu_send:
+  image: artefact.skao.int/ska-sdp-cbf-emulator:1.6.4
+  imagePullPolicy: IfNotPresent
+  recvHost: 172.17.0.3
+  # TODO: DNS lookup is flaky
+  # can get pod ip using `kubectl get pod $POD_NAME --template={{.status.podIP}}`
+  # recvHost: {{ template "send-recv-plasma-leap.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local
+
+# Settings applied to the entire pod
+pod:
+  restartPolicy: Always
+  terminationGracePeriodSeconds: 3
+
+# Settings applied to the service
+service:
+  type: ClusterIP
+  port: 41000
+  annotations: {}
+
+metrics:
+  annotations: {}
+
+
+nameOverride: ""
+fullnameOverride: ""

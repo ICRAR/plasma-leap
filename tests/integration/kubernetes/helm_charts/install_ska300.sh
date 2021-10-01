@@ -1,0 +1,1 @@
+helm install ska300-test ./send-recv-plasma-leap --values ska300.yaml
